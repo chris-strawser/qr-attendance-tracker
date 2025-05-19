@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>QR Attendance Scanner</title>
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+  <style>
+    body { font-family: sans-serif; padding: 2rem; text-align: center; }
+    #reader { width: 300px; margin: auto; }
+    .success { color: green; font-weight: bold; }
+    .error { color: red; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>Student Attendance Check-In</h1>
+  <div id="reader"></div>
+  <p id="result"></p>
+  <div id="details"></div>
+
+  <script>
+    const backendURL = "http://localhost:3000/api/scan";
+
+    function sendScan(data) {
+      const now = new Date();
+      const date = now.toLocaleDateString();
+      const time = now.toLocaleTimeString();
+
+      fetch(backendURL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          studentId: data.id,
+          name: data.name,
+          date,
+          timestamp: time
+        })
+      })
+      .then(async res => {
+        const payload = await res.json();
+        if (res.ok) {
+          document.getElementById('result').innerHTML = `<p class="success">${payload.message}</p>`;
+          document.getElementById('details').innerHTML =
+            `<p><strong>Name:</strong> ${data.name}<br><strong>Time:</strong> ${time}<br><strong>Session:</strong> ${payload.session}${payload.serviceTime ? `<br><strong>Service Time:</strong> ${payload.serviceTime} min` : ''}</p>`;
+        } else {
+          document.getElementById('result').innerHTML = `<p class="error">${payload.error}</p>`;
+          document.getElementById('details').innerHTML = '';
+        }
+      })
+      .catch(() => {
+        document.getElementById('result').innerHTML = `<p class="error">Error reaching server.</p>`;
+        document.getElementById('details').innerHTML = '';
+      });
+    }
+
+    const html5QrCode = new Html5Qrcode("reader");
+    html5QrCode.start(
+      { facingMode: "environment" },
+      { fps: 10, qrbox: 250 },
+      qrMessage => {
+        try {
+          const data = JSON.parse(qrMessage);
+          sendScan(data);
+          html5QrCode.stop();
+        } catch {
+          document.getElementById('result').innerHTML = '<p class="error">Invalid QR code.</p>';
+        }
+      },
+      error => {}
+    );
+  </script>
+</body>
+</html>
