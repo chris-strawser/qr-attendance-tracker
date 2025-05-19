@@ -1,0 +1,37 @@
+# Environment files
+.env
+.env.*
+*.env
+
+# Google Cloud credentials
+*.json
+attendance-tracker-*.json
+*-credentials.json
+*-key.json
+service-account*.json
+
+# Other common credential files
+*.pem
+*.key
+*.p12
+*.pfx
+*.keystore
+*.cer
+*.crt
+
+# Local configuration
+config.local.*
+*config*.local.*
+*_local_*
+
+# Logs that might contain sensitive data
+logs/
+*.log
+
+# IDE and editor folders
+.idea/
+.vscode/
+*.swp
+*.swo
+
+.env
