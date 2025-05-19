@@ -26,7 +26,7 @@
       const date = now.toLocaleDateString();
       const time = now.toLocaleTimeString();
 
-      fetch(backendURL, {
+      fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
