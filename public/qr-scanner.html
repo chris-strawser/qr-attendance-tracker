@@ -58,12 +58,17 @@
       { facingMode: "environment" },
       { fps: 10, qrbox: 250 },
       qrMessage => {
+        console.log('Raw QR code:', qrMessage);
+        document.getElementById('details').innerHTML = `<p><strong>Raw QR:</strong> ${qrMessage}</p>`;
         try {
           const data = JSON.parse(qrMessage);
+          if (!data.id || !data.name) throw new Error('Missing required fields');
           sendScan(data);
           html5QrCode.stop();
-        } catch {
-          document.getElementById('result').innerHTML = '<p class="error">Invalid QR code.</p>';
+        } catch (err) {
+          console.warn('QR parse error:', err.message);
+          document.getElementById('result').innerHTML = '<p class="error">Invalid QR code format. Please try again.</p>';
+          document.getElementById('details').innerHTML += `<p><strong>Error:</strong> ${err.message}</p>`;
         }
       },
       error => {}
